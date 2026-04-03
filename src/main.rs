@@ -1,9 +1,9 @@
-use std::{convert::Infallible, error::Error, sync::LazyLock, time::Duration};
+use std::{convert::Infallible, error::Error, ops::RangeInclusive, sync::LazyLock, time::Duration};
 
 use actix_web::{guard::Guard, rt, web, App, HttpResponse, HttpServer, Responder};
 use enwiwoment::Configuwation;
 use futures::{
-    stream::{repeat_with, unfold},
+    stream::{once, repeat_with, unfold},
     StreamExt,
 };
 use rand::{thread_rng, Rng};
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 async fn meow_generator() -> impl Responder {
     let meows = repeat_with(meow);
-    let delays = unfold((), delay);
+    let delays = once(async {}).chain(unfold(50..=300, delay));
     let stream = meows.zip(delays).map(|(meow, _)| meow);
     HttpResponse::Ok().streaming(stream)
 }
@@ -54,8 +54,9 @@ fn meow() -> Result<web::Bytes, Infallible> {
     let mew = meows::generate_meow();
     Ok(mew.into())
 }
-async fn delay(_: ()) -> Option<((), ())> {
-    let millis = thread_rng().gen_range(50..=300);
+
+async fn delay(range: RangeInclusive<u64>) -> Option<((), RangeInclusive<u64>)> {
+    let millis = thread_rng().gen_range(range.clone());
     rt::time::sleep(Duration::from_millis(millis)).await;
-    Some(((), ()))
+    Some(((), range))
 }
