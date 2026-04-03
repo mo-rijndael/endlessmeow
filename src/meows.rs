@@ -30,4 +30,5 @@ static MEOWS: &[&[MeowToken]] = &[
     meow!('m', 'o', ('w', 5)),
     meow!(('>',), ':', '3', ('c',)),
     meow!('>', ('/', 5), '<'),
+    meow!('a', 'c', 'a', 'b'),
 ];
