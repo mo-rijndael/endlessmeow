@@ -1,4 +1,4 @@
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::{rng, seq::IndexedRandom, RngExt};
 
 pub enum MeowToken {
     Letter(char),
@@ -8,7 +8,7 @@ pub enum MeowToken {
 }
 impl MeowToken {
     fn maybe_capitalized(c: char) -> char {
-        if thread_rng().gen_bool(0.1) {
+        if rng().random_bool(0.1) {
             c.to_ascii_uppercase()
         } else {
             c
@@ -18,17 +18,17 @@ impl MeowToken {
         match *self {
             MeowToken::Letter(c) => buffer.push(Self::maybe_capitalized(c)),
             MeowToken::Repeatable(c, n) => {
-                let n = thread_rng().gen_range(1..=n);
+                let n = rng().random_range(1..=n);
                 for _ in 0..n {
                     buffer.push(Self::maybe_capitalized(c));
                 }
             }
             MeowToken::Alternative(list) => {
-                let c = list.choose(&mut thread_rng()).unwrap();
+                let c = list.choose(&mut rng()).unwrap();
                 buffer.push(Self::maybe_capitalized(*c));
             }
             MeowToken::Optional(c) => {
-                if thread_rng().gen_bool(0.5) {
+                if rng().random_bool(0.5) {
                     c.resolve(buffer);
                 }
             }

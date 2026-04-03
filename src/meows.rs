@@ -1,14 +1,14 @@
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::{rng, seq::IndexedRandom, RngExt};
 
 use crate::grammaw::MeowToken;
 
 pub fn generate_meow() -> String {
     let mut buf = String::with_capacity(20);
-    let pattern = MEOWS.choose(&mut thread_rng()).unwrap();
+    let pattern = MEOWS.choose(&mut rng()).unwrap();
     for token in *pattern {
         token.resolve(&mut buf)
     }
-    if thread_rng().gen_bool(0.1) {
+    if rng().random_bool(0.1) {
         buf.push('\n');
     } else {
         buf.push(' ');

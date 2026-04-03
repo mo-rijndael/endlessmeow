@@ -6,7 +6,7 @@ use futures::{
     stream::{once, repeat_with, unfold},
     StreamExt,
 };
-use rand::{thread_rng, Rng};
+use rand::{rng, RngExt};
 
 #[macro_use]
 mod grammaw;
@@ -56,7 +56,7 @@ fn meow() -> Result<web::Bytes, Infallible> {
 }
 
 async fn delay(range: RangeInclusive<u64>) -> Option<((), RangeInclusive<u64>)> {
-    let millis = thread_rng().gen_range(range.clone());
+    let millis = rng().random_range(range.clone());
     rt::time::sleep(Duration::from_millis(millis)).await;
     Some(((), range))
 }
