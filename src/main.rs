@@ -1,6 +1,8 @@
 use std::{convert::Infallible, error::Error, ops::RangeInclusive, sync::LazyLock, time::Duration};
 
-use actix_web::{guard::Guard, rt, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    guard::Guard, http::header, mime, rt, web, App, HttpResponse, HttpServer, Responder,
+};
 use enwiwoment::Configuwation;
 use futures::{
     stream::{once, repeat_with, unfold},
@@ -47,7 +49,9 @@ async fn meow_generator() -> impl Responder {
     let meows = repeat_with(meow);
     let delays = once(async {}).chain(unfold(50..=300, delay));
     let stream = meows.zip(delays).map(|(meow, _)| meow);
-    HttpResponse::Ok().streaming(stream)
+    HttpResponse::Ok()
+        .insert_header(header::ContentType(mime::TEXT_PLAIN_UTF_8))
+        .streaming(stream)
 }
 
 fn meow() -> Result<web::Bytes, Infallible> {
